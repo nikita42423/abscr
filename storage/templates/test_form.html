@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Тестовая форма</title>
+</head>
+<body>
+    <h1>Тестовая форма</h1>
+    <form action="http://127.0.0.1:8000/storage/rfid_access/" method="post">
+        {% csrf_token %}
+        <label for="rfid_tag">RFID-метка:</label>
+        <input type="text" id="rfid_tag" name="rfid_tag"><br><br>
+        <label for="location_name">Блок хранения: id=1</label>
+        <button type="submit">Отправить</button>
+    </form>
+</body>
+</html>
