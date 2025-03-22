@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}Журнал доступа{% endblock title %}
+
+{% block content %}
+<h1>Журнал доступа</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col">Студент</th>
+            <th class="col">Время доступа</th>
+            <th class="col">Доступ разрешен</th>
+            <th class="col">Блок хранения</th>
+            <th class="col">RFID-метка (если студент не найден)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in access_logs %}
+        <tr>
+            <td scope="row">{{ log.student }}</td>
+            <td scope="row">{{ log.access_time }}</td>
+            <td scope="row">{{ log.is_access_granted }}</td>
+            <td scope="row">{{ log.storage_unit }}</td>
+            <td scope="row">{{ log.rfid_tag_attempted }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}

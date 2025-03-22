@@ -44,7 +44,21 @@ def rfid_access_view(request):
 @login_required
 def access_log_view(request):
     access_logs = AccessLog.objects.all().order_by('-access_time')  # Получаем все записи из AccessLog и сортируем по времени в обратном порядке
-    return render(request, 'access_log.html', {'access_logs': access_logs})
+    data = {
+        'access_logs': access_logs,
+        'activate_page': 'access_logs',
+        }
+    return render(request, 'pages/access_log.html', data)
+
+# Просмотр студентов
+@login_required
+def students_view(request):
+    students = Student.objects.all().order_by('group')  # Получаем все записи из AccessLog и сортируем по времени в обратном порядке
+    data = {
+        'students': students,
+        'activate_page': 'students',
+        }
+    return render(request, 'pages/students.html', data)
 
 # Авторизация
 def login_view(request):
@@ -56,9 +70,9 @@ def login_view(request):
             login(request, user)
             return redirect('home')
         else:
-            return render(request, 'login.html', {'error': 'Неверные учетные данные'})
+            return render(request, 'pages/login.html', {'error': 'Неверные учетные данные'})
     else:
-        return render(request, 'login.html')
+        return render(request, 'pages/login.html')
 
 # Логаут
 def logout_view(request):
@@ -68,4 +82,4 @@ def logout_view(request):
 # Форма для тестирования RFID
 @login_required
 def home_view(request):
-        return render(request, 'test_form.html')
+        return render(request, 'pages/test_form.html')

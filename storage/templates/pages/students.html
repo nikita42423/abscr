@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}Студенты{% endblock title %}
+
+{% block content %}
+<h1>Студенты</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col">RFID-тэг</th>
+            <th class="col">Имя</th>
+            <th class="col">Фамилия</th>
+            <th class="col">Группа</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stud in students %}
+        <tr>
+            <td scope="row">{{ stud.rfid_tag }}</td>
+            <td scope="row">{{ stud.first_name }}</td>
+            <td scope="row">{{ stud.last_name }}</td>
+            <td scope="row">{{ stud.group }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}

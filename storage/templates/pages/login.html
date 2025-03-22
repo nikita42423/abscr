@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}Авторизация{% endblock title %}
+
+{% block header %}{% endblock header %}
+
+{% block content %}
+<main class="row vh-100 p-0 d-flex align-items-center">
+    <div class="col-5"></div>
+    <div class="col-2">
+        <h1 class="text-center">Авторизация</h1>
+        <form action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="username" class="form-label">Логин:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Пароль:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button class="btn btn-primary" type="submit">Отправить</button>
+            <div class="text-danger">
+                {{ error }}
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock content %}
+
+{% block footer %}{% endblock footer %}

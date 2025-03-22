@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}Тестовая форма{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <h1>Тестовая форма</h1>
+    <form action="{% url 'rfid_access' %}" method="post">
+        {% csrf_token %}
+        <label for="rfid_tag">RFID-метка:</label>
+        <input type="text" id="rfid_tag" name="rfid_tag"><br><br>
+        <label for="location_name">Блок хранения: id=1</label>
+        <button type="submit">Отправить</button>
+    </form>
+
+</div>
+{% endblock content %}
