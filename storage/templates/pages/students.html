@@ -11,6 +11,7 @@
             <th class="col">Имя</th>
             <th class="col">Фамилия</th>
             <th class="col">Группа</th>
+            <th class="col">Разрешение доступа</th>
         </tr>
     </thead>
     <tbody>
@@ -20,6 +21,7 @@
             <td scope="row">{{ stud.first_name }}</td>
             <td scope="row">{{ stud.last_name }}</td>
             <td scope="row">{{ stud.group }}</td>
+            <td scope="row">{{ stud.access }}</td>
         </tr>
         {% endfor %}
     </tbody>

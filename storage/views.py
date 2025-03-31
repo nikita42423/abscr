@@ -6,39 +6,50 @@ from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout # Для авторизации
 from django.contrib.auth.decorators import login_required
 
-@csrf_exempt  # Отключаем CSRF для простоты (в реальном проекте нужно настроить правильно)
-@login_required
-def rfid_access_view(request):
-    if request.method == 'POST':
-        rfid_tag = request.POST.get('rfid_tag')
-        try:
-            storage_unit = StorageUnit.objects.get(pk=1) # Для тестирования (ID блок хранения = 1)
-            student = Student.objects.get(rfid_tag=rfid_tag)
-            # Студент найден, разрешаем доступ
-            AccessLog.objects.create(
-                student=student,
-                access_time=timezone.now(),
-                is_access_granted=True,
-                storage_unit=storage_unit,
-                slot=None,
-                radioclass=None,
-                rfid_tag_attempted=rfid_tag
-            )
-            return JsonResponse({'status': 'success', 'message': 'Доступ разрешен'})
-        except Student.DoesNotExist:
-            # Студент не найден, запрещаем доступ
-            AccessLog.objects.create(
-                student=None,  # Студент не идентифицирован
-                access_time=timezone.now(),
-                is_access_granted=False,
-                storage_unit=storage_unit,
-                slot=None,
-                radioclass=None,
-                rfid_tag_attempted=rfid_tag
-            )
-            return JsonResponse({'status': 'error', 'message': 'Доступ запрещен'})
-    else:
-        return JsonResponse({'status': 'error', 'message': 'Неверный метод запроса'})
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import AccessLogDataSerializer
+from rest_framework import status
+
+class rfid_access_view(APIView):
+    def post(self, request):
+        serializer = AccessLogDataSerializer(data=request.data)  # Используем serializer для проверки данных
+        if serializer.is_valid():
+            rfid_tag = serializer.validated_data['rfid_tag_attempted'] # Получаем RFID-метку из данных сериализатора
+            try:
+                storage_unit = StorageUnit.objects.get(pk=1)  # Для тестирования (ID блок хранения = 1)
+                student = Student.objects.get(rfid_tag=rfid_tag)  # Студент найден
+
+                is_access_granted = student.access  # Определяем, разрешен ли доступ
+
+                #Создаем запись в лог
+                AccessLog.objects.create(
+                    student=student,
+                    access_time=timezone.now(),
+                    is_access_granted=is_access_granted,
+                    storage_unit=storage_unit,
+                    rfid_tag_attempted=rfid_tag  # Сохраняем rfid_tag
+                )
+
+                message = 'Доступ разрешен' if is_access_granted else 'Доступ запрещен: нет разрешения' # Тернарный оператор
+                status_message = 'success' if is_access_granted else 'error'
+                return Response({'status': status_message, 'message': message}, status=status.HTTP_200_OK) # success
+
+            except Student.DoesNotExist:
+                # Студент не найден
+
+                #Создаем запись в лог
+                AccessLog.objects.create(
+                    student=None,
+                    access_time=timezone.now(),
+                    is_access_granted=False,
+                    storage_unit=storage_unit,
+                    rfid_tag_attempted=rfid_tag # Сохраняем rfid_tag
+                )
+
+                return Response({'status': 'error', 'message': 'Студент не найден'}, status=status.HTTP_404_NOT_FOUND) # not found
+        else:
+            return Response(serializer.errors, status_message=status.HTTP_400_BAD_REQUEST)  # invalid data
 
 # Просмотр журнала доступа
 @login_required
