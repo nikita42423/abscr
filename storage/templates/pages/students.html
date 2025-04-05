@@ -21,7 +21,13 @@
             <td scope="row">{{ stud.first_name }}</td>
             <td scope="row">{{ stud.last_name }}</td>
             <td scope="row">{{ stud.group }}</td>
-            <td scope="row">{{ stud.access }}</td>
+            <td scope="row">
+                <input type="checkbox"
+                    id="access-{{ stud.id }}"
+                    {% if stud.access %}checked{% endif %}
+                    onchange="toggleAccess({{ stud.id }}, this.checked)"
+                />
+            </td>
         </tr>
         {% endfor %}
     </tbody>

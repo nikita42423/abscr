@@ -33,7 +33,8 @@ class rfid_access_view(APIView):
 
                 message = 'Доступ разрешен' if is_access_granted else 'Доступ запрещен: нет разрешения' # Тернарный оператор
                 status_message = 'success' if is_access_granted else 'error'
-                return Response({'status': status_message, 'message': message}, status=status.HTTP_200_OK) # success
+                status_code = status.HTTP_200_OK if is_access_granted else status.HTTP_403_FORBIDDEN
+                return Response({'status': status_message, 'message': message}, status=status_code) # success
 
             except Student.DoesNotExist:
                 # Студент не найден
@@ -94,3 +95,20 @@ def logout_view(request):
 @login_required
 def home_view(request):
         return render(request, 'pages/test_form.html')
+
+# Изменение доступа студентов
+csrf_exempt  # Отключаем CSRF для этого представления (используем токен в заголовке)
+def update_access(request, student_id):
+    if request.method == 'POST':
+        try:
+            student = Student.objects.get(id=student_id)
+
+            access_value = request.POST.get('access') == 'true'  # Преобразуем строку в boolean
+            print(f"Student ID: {student_id}, Access: {access_value}")  # Логируем данные
+
+            student.access = access_value
+            student.save()
+            return JsonResponse({'success': True})
+        except Student.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Студент не найден'})
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})

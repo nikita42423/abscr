@@ -7,7 +7,7 @@
     <h1>Тестовая форма</h1>
     <form action="{% url 'rfid_access' %}" method="post">
         {% csrf_token %}
-        <label for="rfid_tag">RFID-метка:</label>
+        <label for="rfid_tag">RFID:</label>
         <input type="text" id="rfid_tag" name="rfid_tag"><br><br>
         <label for="location_name">Блок хранения: id=1</label>
         <button type="submit">Отправить</button>
