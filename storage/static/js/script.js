@@ -1,5 +1,6 @@
 function toggleAccess(studentId, isChecked) {
     // Отправка данных на сервер
+    console.log(`Student ID: ${studentId}, Access: ${isChecked}`); // Логируем данные
     fetch(`/update-access/${studentId}/`, {
         method: 'POST',
         headers: {

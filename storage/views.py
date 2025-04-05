@@ -11,6 +11,9 @@ from rest_framework.response import Response
 from .serializers import AccessLogDataSerializer
 from rest_framework import status
 
+import json
+
+
 class rfid_access_view(APIView):
     def post(self, request):
         serializer = AccessLogDataSerializer(data=request.data)  # Используем serializer для проверки данных
@@ -80,7 +83,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('access_log')
         else:
             return render(request, 'pages/login.html', {'error': 'Неверные учетные данные'})
     else:
@@ -91,19 +94,15 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-# Форма для тестирования RFID
-@login_required
-def home_view(request):
-        return render(request, 'pages/test_form.html')
-
 # Изменение доступа студентов
 csrf_exempt  # Отключаем CSRF для этого представления (используем токен в заголовке)
 def update_access(request, student_id):
     if request.method == 'POST':
         try:
             student = Student.objects.get(id=student_id)
+            data = json.loads(request.body)
+            access_value = data.get('access')  # Получаем значение как boolean
 
-            access_value = request.POST.get('access') == 'true'  # Преобразуем строку в boolean
             print(f"Student ID: {student_id}, Access: {access_value}")  # Логируем данные
 
             student.access = access_value
