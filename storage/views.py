@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Student, AccessLog, StorageUnit
@@ -13,6 +13,8 @@ from rest_framework import status
 
 import json
 
+from .forms import StudentForm
+from .models import Student
 
 class rfid_access_view(APIView):
     def post(self, request):
@@ -58,7 +60,7 @@ class rfid_access_view(APIView):
 # Просмотр журнала доступа
 @login_required
 def access_log_view(request):
-    access_logs = AccessLog.objects.all().order_by('-access_time')  # Получаем все записи из AccessLog и сортируем по времени в обратном порядке
+    access_logs = AccessLog.objects.all().order_by('-access_time')
     data = {
         'access_logs': access_logs,
         'activate_page': 'access_logs',
@@ -68,12 +70,43 @@ def access_log_view(request):
 # Просмотр студентов
 @login_required
 def students_view(request):
-    students = Student.objects.all().order_by('group')  # Получаем все записи из AccessLog и сортируем по времени в обратном порядке
+    students = Student.objects.all().order_by('group')
     data = {
         'students': students,
         'activate_page': 'students',
         }
     return render(request, 'pages/students.html', data)
+
+# Добавление студентов
+def add_student(request):
+    if request.method == 'POST':
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('students')
+    else:
+        form = StudentForm()
+    return render(request, 'pages/add_student.html', {'form': form})
+
+# Изменение студентов
+def upd_student(request, student_id):
+    student = get_object_or_404(Student, pk=student_id)
+    if request.method == 'POST':
+        form = StudentForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            return redirect('students')
+    else:
+        form = StudentForm(instance=student)
+    return render(request, 'pages/upd_student.html', {'form': form, 'student': student})
+
+# Удаление студентов
+def del_student(request, student_id):
+    student = get_object_or_404(Student, pk=student_id)
+    if request.method == 'POST':
+        student.delete()
+        return redirect('students')
+    return render(request, 'pages/del_student.html', {'student': student})
 
 # Авторизация
 def login_view(request):

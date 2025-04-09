@@ -9,8 +9,8 @@ class Group(models.Model):
 class Student(models.Model):
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, blank=True, null=True, related_name='students')
     rfid_tag = models.CharField(max_length=255, unique=True)
-    first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255)
     access = models.BooleanField(default=False)
 
     def __str__(self):
