@@ -3,13 +3,15 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Student, AccessLog, StorageUnit
 from django.utils import timezone
-from django.contrib.auth import authenticate, login, logout # Для авторизации
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import AccessLogDataSerializer
 from rest_framework import status
+from rest_framework.decorators import api_view
 
 import json
 
@@ -19,11 +21,12 @@ from .models import Student
 class rfid_access_view(APIView):
     def post(self, request):
         serializer = AccessLogDataSerializer(data=request.data)  # Используем serializer для проверки данных
+
         if serializer.is_valid():
-            rfid_tag = serializer.validated_data['rfid_tag_attempted'] # Получаем RFID-метку из данных сериализатора
+            uid = serializer.validated_data['rfid_tag_attempted']  # Получаем RFID-метку из данных сериализатора
             try:
                 storage_unit = StorageUnit.objects.get(pk=1)  # Для тестирования (ID блок хранения = 1)
-                student = Student.objects.get(rfid_tag=rfid_tag)  # Студент найден
+                student = Student.objects.get(rfid_tag=uid)  # Студент найден
 
                 is_access_granted = student.access  # Определяем, разрешен ли доступ
 
@@ -33,13 +36,12 @@ class rfid_access_view(APIView):
                     access_time=timezone.now(),
                     is_access_granted=is_access_granted,
                     storage_unit=storage_unit,
-                    rfid_tag_attempted=rfid_tag  # Сохраняем rfid_tag
+                    rfid_tag_attempted=uid  # Сохраняем rfid_tag
                 )
 
-                message = 'Доступ разрешен' if is_access_granted else 'Доступ запрещен: нет разрешения' # Тернарный оператор
+                message = 'Доступ разрешен' if is_access_granted else 'Доступ запрещен: нет разрешения'  # Тернарный оператор
                 status_message = 'success' if is_access_granted else 'error'
-                status_code = status.HTTP_200_OK if is_access_granted else status.HTTP_403_FORBIDDEN
-                return Response({'status': status_message, 'message': message}, status=status_code) # success
+                return Response({'status': status_message, 'message': message}, status=status.HTTP_200_OK)  # success
 
             except Student.DoesNotExist:
                 # Студент не найден
@@ -50,17 +52,27 @@ class rfid_access_view(APIView):
                     access_time=timezone.now(),
                     is_access_granted=False,
                     storage_unit=storage_unit,
-                    rfid_tag_attempted=rfid_tag # Сохраняем rfid_tag
+                    rfid_tag_attempted=uid # Сохраняем rfid_tag
                 )
 
-                return Response({'status': 'error', 'message': 'Студент не найден'}, status=status.HTTP_404_NOT_FOUND) # not found
+                return Response({'status': 'error', 'message': 'Студент не найден'}, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors, status_message=status.HTTP_400_BAD_REQUEST)  # invalid data
+            return Response(serializer.errors, status_message=status.HTTP_400_BAD_REQUEST)
 
 # Просмотр журнала доступа
 @login_required
 def access_log_view(request):
-    access_logs = AccessLog.objects.all().order_by('-access_time')
+    access_logs_list = AccessLog.objects.all().order_by('-access_time')
+
+    page = request.GET.get('page', 1)  # Получаем номер страницы из запроса
+    paginator = Paginator(access_logs_list, 10)  # 10 записей на странице
+    try:
+        access_logs = paginator.page(page)
+    except PageNotAnInteger:
+        access_logs = paginator.page(1)
+    except EmptyPage:
+        access_logs = paginator.page(paginator.num_pages)
+
     data = {
         'access_logs': access_logs,
         'activate_page': 'access_logs',
@@ -128,7 +140,7 @@ def logout_view(request):
     return redirect('login')
 
 # Изменение доступа студентов
-csrf_exempt  # Отключаем CSRF для этого представления (используем токен в заголовке)
+csrf_exempt
 def update_access(request, student_id):
     if request.method == 'POST':
         try:

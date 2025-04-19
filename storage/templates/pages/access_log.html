@@ -9,7 +9,7 @@
         <tr>
             <th class="col">Студент</th>
             <th class="col">Время доступа</th>
-            <th class="col">Доступ разрешен</th>
+            <th class="col">Статус доступа</th>
             <th class="col">Блок хранения</th>
             <th class="col">UID RFID</th>
         </tr>
@@ -19,11 +19,37 @@
         <tr>
             <td scope="row">{{ log.student }}</td>
             <td scope="row">{{ log.access_time }}</td>
-            <td scope="row">{{ log.is_access_granted }}</td>
+            <td scope="row">
+                {% if log.is_access_granted %}
+                    <span class="badge text-bg-success">Разрешен</span>
+                {% else %}
+                    <span class="badge text-bg-danger">Запрещен</span>
+                {% endif %}
+            </td>
             <td scope="row">{{ log.storage_unit }}</td>
             <td scope="row">{{ log.rfid_tag_attempted }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+{% comment %} Пагинация {% endcomment %}
+<ul class="pagination">
+{% if access_logs.has_previous %}
+<li class="page-item"><a class="page-link" href="?page=1">&laquo; Первая</a></li>
+<li class="page-item"><a class="page-link" href="?page={{ access_logs.previous_page_number }}">Предыдущая</a></li>
+{% endif %}
+
+<li class="page-item disabled">
+<span class="page-link">
+    Страница {{ access_logs.number }} из {{ access_logs.paginator.num_pages }}.
+</span>
+</li>
+
+{% if access_logs.has_next %}
+<li class="page-item"><a class="page-link" href="?page={{ access_logs.next_page_number }}">Следующая</a></li>
+<li class="page-item"><a class="page-link" href="?page={{ access_logs.paginator.num_pages }}">Последняя &raquo;</a></li>
+{% endif %}
+</ul>
+
 {% endblock content %}

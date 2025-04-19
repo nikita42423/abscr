@@ -11,6 +11,7 @@ urlpatterns = [
     path('del-student/<int:student_id>/', views.del_student, name='del_student'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('check-rfid/', views.rfid_access_view.as_view(), name='check_rfid'),
 
     path('update-access/<int:student_id>/', views.update_access, name='update_access'),
 ]

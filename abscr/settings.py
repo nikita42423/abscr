@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-7lvh^4w&8dn&_l_5f=&9ezf+e#7v2(u_xdoo0y7h6(e#^o0hd1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['0.0.0.0','localhost', '127.0.0.1', '192.168.116.145', '172.20.10.2']
 
 
 # Application definition
@@ -43,8 +43,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware', # Для авторизации (сеанс)
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -130,3 +130,5 @@ STATIC_URL = 'storage/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
