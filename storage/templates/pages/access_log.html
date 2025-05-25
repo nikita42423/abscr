@@ -4,6 +4,38 @@
 
 {% block content %}
 <h1>Журнал доступа</h1>
+
+<div class="row">
+    <div class="col-3">
+        <form method="post" action="{% url 'rfid_access' %}">
+            {% csrf_token %}
+            <input type="hidden" name="rfid_tag_attempted" value="1234567890">
+            <button type="submit" class="btn btn-primary">Приложить карту Кузнецова</button>
+        </form>
+    </div>
+    <div class="col-3">
+        <form method="post" action="{% url 'rfid_access' %}">
+            {% csrf_token %}
+            <input type="hidden" name="rfid_tag_attempted" value="f54277">
+            <button type="submit" class="btn btn-primary">Приложить карту Колупаева</button>
+        </form>
+    </div>
+    <div class="col-3">
+        <form method="post" action="{% url 'rfid_access' %}">
+            {% csrf_token %}
+            <input type="hidden" name="rfid_tag_attempted" value="7650bb6f">
+            <button type="submit" class="btn btn-primary">Приложить карту Цурина</button>
+        </form>
+    </div>
+    <div class="col-3">
+        <form method="post" action="{% url 'rfid_access' %}">
+            {% csrf_token %}
+            <input type="hidden" name="rfid_tag_attempted" value="1234567892">
+            <button type="submit" class="btn btn-primary">Приложить карту Тошниёзова</button>
+        </form>
+    </div>
+</div>
+
 <table class="table">
     <thead>
         <tr>

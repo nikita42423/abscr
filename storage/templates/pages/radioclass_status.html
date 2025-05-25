@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}Статус радиокласса{% endblock title %}
+
+{% block content %}
+<h1>Статус радиокласса</h1>
+<div class="card">
+    <div class="card-body">
+        <h2>{{ radioclass.model }}</h2>
+        <p>Статус:
+            {% if radioclass.status == 'charged' %}
+                <span class="badge text-bg-success">Заряжен</span>
+            {% elif radioclass.status == 'charging' %}
+                <span class="badge text-bg-warning">Заряжается</span>
+            {% elif radioclass.status == 'unplugged' %}
+                <span class="badge text-bg-danger">Не подключен</span>
+            {% endif %}
+        </p>
+        <p>Последнее обновление: {{ radioclass.last_updated }}</p>
+    </div>
+</div>
+{% endblock content %}

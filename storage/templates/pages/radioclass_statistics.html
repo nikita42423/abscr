@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+
+{% block title %}Статистика по выданным радиоклассам{% endblock title %}
+
+{% block content %}
+<h1>Статистика по выданным радиоклассам</h1>
+
+<div class="card">
+    <div class="card-body">
+        <p>Общее количество выданных радиоклассов: {{ total_issued }}</p>
+        <p>Свободных радиоклассов: {{ free_radio_classes }}</p>
+        <p>Разрешенных доступов: {{ granted_access }}</p>
+        <p>Запрещенных доступов: {{ denied_access }}</p>
+    </div>
+</div>
+
+<canvas id="issuedChart" width="400" height="200"></canvas>
+
+<!-- Подключение Chart.js и адаптера -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Получаем данные из JSON
+        const issuedPerDayData = document.getElementById('issued-per-day-data').textContent;
+
+        issuedPerDay = JSON.parse(issuedPerDayData);
+
+
+        // Проверяем, что данные не пустые
+        if (!issuedPerDay || issuedPerDay.length === 0) {
+            console.error("Данные отсутствуют или пусты.");
+            return;
+        }
+
+        const ctx = document.getElementById('issuedChart').getContext('2d');
+
+        const data = {
+            labels: issuedPerDay.map(item => item.day),
+            datasets: [{
+                label: 'Выданные радиоклассы',
+                data: issuedPerDay.map(item => item.count),
+                backgroundColor: 'rgba(0, 255, 255, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                scales: {
+                    x: {
+                        type: 'time', // Ось времени
+                        time: {
+                            unit: 'day'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Дата'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Количество выданных радиоклассов'
+                        }
+                    }
+                }
+            }
+        };
+
+        new Chart(ctx, config);
+    });
+</script>
+
+<!-- Сериализованные данные -->
+<script id="issued-per-day-data" type="application/json">
+    {{ issued_per_day|safe }}
+</script>
+{% endblock content %}

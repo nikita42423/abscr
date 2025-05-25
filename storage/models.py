@@ -19,16 +19,13 @@ class Student(models.Model):
 class RadioClass(models.Model):
     serial_number = models.CharField(max_length=255)
     model = models.CharField(max_length=255)
-    CONDITION_CHOICES = [
-        ('good', 'Good'),
-        ('damaged', 'Damaged'),
-        ('needs_repair', 'Needs Repair'),
+    STATUS_CHOICES = [
+        ('charged', 'Заряжен'),
+        ('charging', 'Заряжается'),
+        ('unplugged', 'Не подключен'),
     ]
-    condition = models.CharField(
-        max_length=20,
-        choices=CONDITION_CHOICES,
-        default='good',
-    )
+    status = models.CharField(max_length=20, default='Не подключен', choices=STATUS_CHOICES)  # Статус зарядки
+    last_updated = models.DateTimeField(auto_now=True)  # Время последнего обновления
 
     def __str__(self):
         return f"{self.model} ({self.serial_number})"
@@ -57,6 +54,7 @@ class StorageSlot(models.Model):
 
     def __str__(self):
         return f"{self.storage_unit} - Slot {self.slot_number}"
+
 
 class AccessLog(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, blank=True, null=True, related_name='access_logs')
