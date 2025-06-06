@@ -16,7 +16,7 @@ class Student(models.Model):
     def __str__(self):
         return f"{self.last_name} {self.first_name}"
 
-class RadioClass(models.Model):
+class Radioclass(models.Model):
     serial_number = models.CharField(max_length=255)
     model = models.CharField(max_length=255)
     STATUS_CHOICES = [
@@ -39,12 +39,11 @@ class StorageUnit(models.Model):
 class StorageSlot(models.Model):
     storage_unit = models.ForeignKey(StorageUnit, on_delete=models.CASCADE, related_name='slots')
     slot_number = models.IntegerField()
-    radioclass = models.ForeignKey(RadioClass, on_delete=models.SET_NULL, blank=True, null=True, related_name='slots')
+    radioclass = models.ForeignKey(Radioclass, on_delete=models.SET_NULL, blank=True, null=True, related_name='slots')
     STATUS_CHOICES = [
-        ('available', 'Available'),
-        ('occupied', 'Occupied'),
-        ('charging', 'Charging'),
-        ('unavailable', 'Unavailable'),
+        ('available', 'Доступно'),
+        ('occupied', 'Занято'),
+        ('unavailable', 'Недоступно'),
     ]
     status = models.CharField(
         max_length=20,
@@ -62,7 +61,7 @@ class AccessLog(models.Model):
     is_access_granted = models.BooleanField(default=False)
     storage_unit = models.ForeignKey(StorageUnit, on_delete=models.CASCADE)
     slot = models.ForeignKey(StorageSlot, on_delete=models.SET_NULL, blank=True, null=True)
-    radioclass = models.ForeignKey(RadioClass, on_delete=models.SET_NULL, blank=True, null=True)
+    radioclass = models.ForeignKey(Radioclass, on_delete=models.SET_NULL, blank=True, null=True)
     rfid_tag_attempted = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):

@@ -7,7 +7,6 @@ urlpatterns = [
     path('rfid-access/', views.rfid_access_view.as_view(), name='rfid_access'),
     path('access-log/', views.access_log_view, name='access_log'),
     path('update-access/<int:student_id>/', views.update_access, name='update_access'),
-    path('check-rfid/', views.rfid_access_view.as_view(), name='check_rfid'),
 
     # Студенты
     path('students/', views.students_view, name='students'),
@@ -17,7 +16,7 @@ urlpatterns = [
 
     # Мониторинг зарядки
     path("radioclass-status/", views.radioclass_status_view, name="radioclass_status"),
-    path('update-radio-class-status/', views.RadioClassStatusView.as_view(), name='update_radio_class_status'),
+    path('update-radioclass-status/', views.RadioclassStatusView.as_view(), name='update_radioclass_status'),
 
     # Статистика
     path("radioclass-statistics/", views.radioclass_statistics_view, name="radioclass_statistics"),

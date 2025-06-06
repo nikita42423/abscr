@@ -11,9 +11,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import AccessLogDataSerializer, RadioClassStatusSerializer
+from .serializers import AccessLogDataSerializer, RadioclassStatusSerializer
 from .forms import StudentForm
-from .models import Student, AccessLog, StorageUnit, RadioClass
+from .models import Student, AccessLog, StorageUnit, Radioclass
 
 import json
 
@@ -304,7 +304,7 @@ def update_access(request, student_id):
     # Если метод запроса некорректен, возвращаем ответ с ошибкой
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
 
-class RadioClassStatusView(APIView):
+class RadioclassStatusView(APIView):
     """
     Класс API-эндпоинта для обновления статуса радиокласса.
 
@@ -320,7 +320,7 @@ class RadioClassStatusView(APIView):
         - 404 Not Found: Радиокласс не найден.
     """
     def post(self, request):
-        serializer = RadioClassStatusSerializer(data=request.data)  # Валидация данных
+        serializer = RadioclassStatusSerializer(data=request.data)  # Валидация данных
 
         # Проверка валидности данных
         if serializer.is_valid():
@@ -329,7 +329,7 @@ class RadioClassStatusView(APIView):
             new_status = serializer.validated_data['status']
 
             try:
-                radio_class = RadioClass.objects.get(id=radio_class_id)  # Поиск радиокласса в базе данных по ID
+                radio_class = Radioclass.objects.get(id=radio_class_id)  # Поиск радиокласса в базе данных по ID
 
                 # Обновление статуса радиокласса
                 radio_class.status = new_status
@@ -341,7 +341,7 @@ class RadioClassStatusView(APIView):
                     {'status': 'success', 'message': 'Статус обновлен'},
                     status=status.HTTP_200_OK
                 )
-            except RadioClass.DoesNotExist:
+            except Radioclass.DoesNotExist:
                 # Если радиокласс не найден, возвращаем ошибку 404
                 return Response(
                     {'status': 'error', 'message': 'Радиокласс не найден'},
@@ -357,7 +357,7 @@ class RadioClassStatusView(APIView):
 # Отображение статуса радиокласса
 @login_required  # Декоратор, который требует аутентификации пользователя
 def radioclass_status_view(request):
-    radioclass = RadioClass.objects.first()  # Пока что один радиокласс
+    radioclass = Radioclass.objects.first()  # Пока что один радиокласс
     data = {
         'radioclass': radioclass,
     }
@@ -370,7 +370,7 @@ def radioclass_statistics_view(request):
     total_issued = AccessLog.objects.count()
 
     # Количество свободных радиоклассов
-    free_radio_classes = RadioClass.objects.exclude(accesslog__isnull=False).count()
+    free_radio_classes = Radioclass.objects.exclude(accesslog__isnull=False).count()
 
     # Количество разрешенных и запрещенных доступов
     granted_access = AccessLog.objects.filter(is_access_granted=True).count()
@@ -379,7 +379,10 @@ def radioclass_statistics_view(request):
     # Данные для графика
     issued_per_day = (
         AccessLog.objects
-        .filter(access_time__gte=timezone.now() - timezone.timedelta(days=90))
+        .filter(
+            access_time__gte=timezone.now() - timezone.timedelta(days=90),
+            is_access_granted=True  # Только разрешенные доступы
+        )
         .annotate(day=TruncDay('access_time'))  # Группируем по дню
         .values('day')  # Получаем только поле 'day'
         .annotate(count=Count('id'))  # Считаем количество записей за день
